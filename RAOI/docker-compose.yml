@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  database:
+    image: microsoft/mssql-server-linux:2017-latest
+    ports:
+      - 1433:1433
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Microsoft2017"
+    volumes:
+     - "./database:/workspace"
+    command:
+      - /workspace/database-entrypoint.sh
+  goapp:
+    build: sources
+    volumes:
+      - ./sources:/sources
+    depends_on:
+      - database
+    command: ["./sources/wait-for-db.sh", "db:1433", "--", "go", "app.py"]
